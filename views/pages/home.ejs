@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/header.ejs %>
+</head>
+
+<body>
+
+<% include ../partials/nav.ejs %>
+
+<div class="container">
+<h2>Salesforce ORG Details</h2>
+
+<ul>
+   ORG ID : <%= results.organizationId %> <br/>
+   USER ID : <%= results.id %>
+</ul>
+
+</div>
+
+</body>
+</html>
