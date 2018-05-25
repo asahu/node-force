@@ -64,7 +64,7 @@ app.get('/accounts', function(req, res) {
 	//console.log(responseaccesstoken);
     if (responseaccesstoken=='' && responseinstanceUrl=='') { res.redirect('/'); }
 
-    var query = 'SELECT id, name,Phone FROM account LIMIT 10';
+    var query = 'SELECT id, name,Phone FROM account LIMIT 20';
     // open connection with client's stored OAuth details
     var conn = new jsforce.Connection({
         accessToken: responseaccesstoken,
@@ -82,6 +82,28 @@ app.get('/accounts', function(req, res) {
     }); 
 });
 
+app.get('/contacts', function(req, res) {
+    // if auth has not been set, redirect to index
+	//console.log(responseaccesstoken);
+    if (responseaccesstoken=='' && responseinstanceUrl=='') { res.redirect('/'); }
+
+    var query = 'SELECT id, name,Phone FROM contact LIMIT 20';
+    // open connection with client's stored OAuth details
+    var conn = new jsforce.Connection({
+        accessToken: responseaccesstoken,
+		instanceUrl: responseinstanceUrl
+    });
+
+    conn.query(query, function(err, result) {
+        if (err) {
+            console.error(err);
+            res.redirect('/');
+        }
+		//console.log(result);
+		//res.end(JSON.stringify(result.records));
+        res.render('pages/contacts',{results: result.records});
+    }); 
+});
 app.get('/db', function (request, response) {
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     client.query('SELECT * FROM test_table', function(err, result) {
@@ -114,6 +136,11 @@ app.get('/createaccountpage', function(request, response) {
   response.render('pages/createaccountpage');
 });
 
+app.get('/createcontactpage', function(request, response) {
+  //response.render('pages/index');
+  response.render('pages/createcontactpage');
+});
+
 app.post('/createaccount',urlencodedParser, function (request, response) {
 	console.log("createaccount called");
 // Single record creation
@@ -127,6 +154,18 @@ app.post('/createaccount',urlencodedParser, function (request, response) {
 });
 });
 
+app.post('/createcontact',urlencodedParser, function (request, response) {
+	console.log("createcontact called");
+// Single record creation
+  conn.sobject("Contact").create({ lastname : request.body.accountname , Phone : request.body.accountphone }, function(err, ret) {
+  if (err || !ret.success) { 
+  return console.error(err, ret); 
+  
+  }
+  console.log("Created record id : " + ret.id);
+  response.redirect('/contacts');
+});
+});
 app.get('/logout', function (request, response) {
   console.log("logout called");
   conn.logout();
